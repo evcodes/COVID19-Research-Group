@@ -14,9 +14,19 @@ mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility
 
 head(confirmedCasesUS)
 head(confirmedDeathsUS)
-head(hospitalData)
+hospitalData
 head(mobilityReport)
 
-mobilityReport
+
+mobilityReport[which(mobilityReport$country_region=='United States')]
 ```
+
+
+
+confirmed cases: province_state,combined_key, all dates
+confirmed deaths: province_state,combined_key, all dates
+hospital data: type of hospital[critical access, general acute care], county, county fips, #beds, trauma,
+mobility report: US data, all percent change from baseline for each location.
+
+todo: populate CSV with stay at home order from NYT article.
 
