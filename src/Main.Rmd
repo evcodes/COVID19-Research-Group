@@ -11,22 +11,53 @@ confirmedCasesUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVID
 confirmedDeathsUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv')
 hospitalData = read.csv('data/Hospitals.csv', header = TRUE)
 mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv')
+stayHomeClean = read.csv('data/StayHomeOrder.csv', header = TRUE)
 
 head(confirmedCasesUS)
 head(confirmedDeathsUS)
+head(stayHome)
 hospitalData
-head(mobilityReport)
 
-
-mobilityReport[which(mobilityReport$country_region=='United States')]
 ```
 
+Preprocessing data to fix column names and remove columns that we are not going to use:
+```{r}
+library(tidyverse)
+
+#Confirmed Cases
+casesClean = confirmedCasesUS[,-2:-5]
+casesClean = casesClean[,-7]
+names(casesClean)[names(casesClean) == "Admin2"] <- "County"
+
+#Confirmed Deaths
+deathesClean = confirmedDeathsUS[,-2:-5]
+deathesClean = deathesClean[,-7]
+names(deathesClean)[names(deathesClean) == "Admin2"] <- "County"
+
+#Hospital Data
+hospitalClean = hospitalData %>% filter(
+  TYPE == "GENERAL ACUTE CARE" | TYPE == "LONG TERM CARE"|
+  TYPE == "CRITICAL ACCESS" | TYPE == "CHILDREN")
+
+# we want to anonymize the name of the hospital and remove lat/longitude data, and other id and columns where all the values are the same. We have also removed hospitals that would not be treating people who are infected with the virus.
+
+head(hospitalData)
+hospitalClean = hospitalData[,-c(1:6, 10:11, 16, 17, 20, 22:29,31,34)]
+hospitalClean
+rapply(hospitalData,function(x)length(unique(x)))
+
+types = hospitalData$TYPE[!duplicated(hospitalData$TYPE)]
+
+#Filtering out the regions that are not the United States, each row is a day where the columns represent the %change  from baseline in different categories such as retail, transit, parks, etc...
+# When both sub_region_1 and sub_region_2 is empty then we are looking at the whole US
+# When sub_region_2 is empty we are looking at the statewide mobility report, I am keeping these in for future use cases.
+mobilityReportClean = mobilityReport[which(mobilityReport$country_region=='United States')]
 
 
-confirmed cases: province_state,combined_key, all dates
-confirmed deaths: province_state,combined_key, all dates
-hospital data: type of hospital[critical access, general acute care], county, county fips, #beds, trauma,
-mobility report: US data, all percent change from baseline for each location.
-
-todo: populate CSV with stay at home order from NYT article.
+head(casesClean)
+head(deathesClean)
+head(hospitalClean)
+mobilityReportClean
+head(stayHomeClean)
+```
 
