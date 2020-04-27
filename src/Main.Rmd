@@ -15,7 +15,7 @@ stayHomeClean = read.csv('data/StayHomeOrder.csv', header = TRUE)
 
 head(confirmedCasesUS)
 head(confirmedDeathsUS)
-head(stayHome)
+head(stayHomeClean)
 hospitalData
 
 ```
@@ -60,4 +60,37 @@ head(hospitalClean)
 mobilityReportClean
 head(stayHomeClean)
 ```
+
+```{r StayHome}
+# Need to translate StayHome date into a category "bucket" 
+# Group 1: Orders on/before 3/23
+# Group 2: Orders between 3/24 - 3/26
+# Group 3: Orders between 3/27 - 3/31
+# Group 4: Orders on/after 4/1
+stayHomeClean$Start.Date = as.Date(stayHomeClean$Start.Date)
+
+#Creating Dummy Variables for each group
+stayHomeClean$start.1 = ifelse(stayHomeClean$Start.Date <= as.Date('2020-03-23'),1,0)
+stayHomeClean$start.2 = ifelse(stayHomeClean$Start.Date > as.Date('2020-03-23') & stayHomeClean$Start.Date <= as.Date('2020-03-26') ,1,0)
+stayHomeClean$start.3 = ifelse(stayHomeClean$Start.Date > as.Date('2020-03-26') & stayHomeClean$Start.Date <= as.Date('2020-03-31'),1,0)
+stayHomeClean$start.4 = ifelse(stayHomeClean$Start.Date >= as.Date('2020-04-01'),1,0)
+
+```
+
+```{r income}
+# Adding data set for per capital income 2018 for each county
+incomeData = read.csv('data/lapi1119.csv',header = TRUE)
+```
+
+```{r countyData}
+#Create a unified "countyData" table which will link each county to: 
+# mortality rate, total cases, total deaths, # beds, ∆retail, ∆grocery, ∆parks, ∆transit, ∆work, ∆residential, stay at home, income
+
+#Will need to merge the datasets 
+
+```
+
+
+
+
 
