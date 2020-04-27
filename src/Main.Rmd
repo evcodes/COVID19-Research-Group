@@ -6,16 +6,22 @@ output: pdf_document
 ---
 
 ```{r}
+
+# top top 10 states: NY, NJ, MA, IL, CA, PA, MI, FL, LA, TX
+# change formula for deaths/county pop
+
 library(data.table)
 confirmedCasesUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv')
 confirmedDeathsUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv')
 hospitalData = read.csv('data/Hospitals.csv', header = TRUE)
 mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv')
 stayHomeClean = read.csv('data/StayHomeOrder.csv', header = TRUE)
+countyPop = read_xlsx('data/co-est2019-annres.xlsx', header = TRUE)
 
 head(confirmedCasesUS)
 head(confirmedDeathsUS)
 head(stayHomeClean)
+head(countyPop)
 hospitalData
 
 ```
