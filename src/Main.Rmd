@@ -168,8 +168,8 @@ names(aggregateBeds) = c("State","County","Beds")
 
 
 countyData = merge(deathsSub,casesSub)
-countyData = merge(countyData,incomeData)
-countyData = merge(countyData,aggregateBeds)
+countyData = merge(countyData,incomeData,all = TRUE)
+countyData = merge(countyData,aggregateBeds,all=TRUE)
 countyData = merge(countyData,populationSub)
 countyData$StayHomeDate = as.character("2020-01-01")
 for (i in 1:nrow(countyData)){
@@ -205,8 +205,7 @@ for (i in 1:nrow(countyData)){
   }
 }
 
-#Will need to merge the datasets 
-
+write.csv(countyData,"countyData.csv")
 ```
 
 
