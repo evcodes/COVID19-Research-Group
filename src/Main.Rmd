@@ -16,7 +16,7 @@ confirmedDeathsUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVI
 hospitalData = read.csv('data/Hospitals.csv', header = TRUE)
 mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv')
 stayHomeClean = read.csv('data/StayHomeOrder.csv', header = TRUE)
-countyPop = read_xlsx('data/co-est2019-annres.xlsx', header = TRUE)
+countyPop = read.csv('data/countyPop.csv', header = TRUE)
 
 head(confirmedCasesUS)
 head(confirmedDeathsUS)
@@ -91,6 +91,119 @@ incomeData = read.csv('data/lapi1119.csv',header = TRUE)
 ```{r countyData}
 #Create a unified "countyData" table which will link each county to: 
 # mortality rate, total cases, total deaths, # beds, ∆retail, ∆grocery, ∆parks, ∆transit, ∆work, ∆residential, stay at home, income
+
+#Subsetting data for only counties in top 10 states
+topStates = c("New York","New Jersey","Massachusetts","Illinois","California","Pennsylvania", "Michigan", "Florida","Louisiana", "Texas")
+
+#Income
+
+incomeDataClean = subset(incomeData, State %in% topStates )
+names(incomeDataClean) = c("State","County","Income.2018")
+
+#Cases - only as of 4/26/2020
+casesSub = subset(casesClean, (Province_State %in% topStates) & UID <84060000)
+casesSub$totalCases = casesSub$"4/26/20"
+casesSub = casesSub[,c("County","Province_State","totalCases")]
+casesSub = casesSub[,c(2,1,3)]
+names(casesSub) = c("State","County","totalCases")
+
+#Deaths - only as of 4/26/2020
+deathsSub = subset(deathesClean, (Province_State %in% topStates) & UID <84060000)
+deathsSub$totalDeaths = deathsSub$"4/26/20"
+deathsSub = deathsSub[,c("County","Province_State","totalDeaths")]
+deathsSub = deathsSub[,c(2,1,3)]
+names(deathsSub) = c("State","County","totalDeaths")
+
+#Population - 2019 estimates
+populationSub = subset(countyPop, STNAME %in% topStates & as.character(STNAME)!=as.character(CTYNAME))
+populationSub = populationSub[,c("STNAME","CTYNAME","POPESTIMATE2019")]
+names(populationSub) = c("State","County","Pop.2019")
+populationSub$County = sub(populationSub$County, pattern = " [[:alpha:]]*$", replacement = "")
+
+#Hospital 
+library(tools)
+hospitalSub = subset(hospitalClean,STATE %in% c("CA","NY","NJ","MA","LA","TX","MI","IL","FL","PA"))
+hospitalSub = hospitalSub[,c("STATE","COUNTY","BEDS")]
+hospitalSub = hospitalSub[hospitalSub$BEDS!=-999,]
+aggregateBeds = data.frame(aggregate(BEDS~COUNTY+STATE,hospitalSub,sum))
+aggregateBeds = aggregateBeds[c(2,1,3)]
+aggregateBeds$STATE = as.character(aggregateBeds$STATE )
+aggregateBeds$COUNTY = toTitleCase(tolower(as.character(aggregateBeds$COUNTY )))
+
+for (i in 1:nrow(aggregateBeds)){
+  if (as.character(aggregateBeds[i,1]) == "CA"){
+    aggregateBeds[i,1] = "California"
+  }
+  if (as.character(aggregateBeds[i,1]) == "NJ"){
+    aggregateBeds[i,1] = "New Jersey"
+  }
+  if (as.character(aggregateBeds[i,1]) == "NY"){
+    aggregateBeds[i,1] = "New York"
+  }
+  if (as.character(aggregateBeds[i,1]) == "MA"){
+    aggregateBeds[i,1] = "Massachusetts"
+  }
+  if (as.character(aggregateBeds[i,1]) == "PA"){
+    aggregateBeds[i,1] = "Pennslyvania"
+  }
+  if (as.character(aggregateBeds[i,1]) == "MI"){
+    aggregateBeds[i,1] = "Michigan"
+  }
+  if (as.character(aggregateBeds[i,1]) == "IL"){
+    aggregateBeds[i,1] = "Illinois"
+  }
+  if (as.character(aggregateBeds[i,1]) == "LA"){
+    aggregateBeds[i,1] = "Louisiana"
+  }
+  if (as.character(aggregateBeds[i,1]) == "FL"){
+    aggregateBeds[i,1] = "Florida"
+  }
+  if (as.character(aggregateBeds[i,1]) == "TX"){
+    aggregateBeds[i,1] = "Texas"
+  }
+}
+names(aggregateBeds) = c("State","County","Beds")
+
+
+
+
+countyData = merge(deathsSub,casesSub)
+countyData = merge(countyData,incomeData)
+countyData = merge(countyData,aggregateBeds)
+countyData = merge(countyData,populationSub)
+countyData$StayHomeDate = as.character("2020-01-01")
+for (i in 1:nrow(countyData)){
+  if (countyData[i,1] == "California") {
+    countyData$StayHomeDate[i] = "2020-03-19"
+  }
+  if (countyData[i,1] == "New Jersey") {
+    countyData$StayHomeDate[i] = "2020-03-21"
+  }
+  if (countyData[i,1] == "New York") {
+    countyData$StayHomeDate[i] = "2020-03-22"
+  }
+  if (countyData[i,1] == "Massachusetts") {
+    countyData$StayHomeDate[i] = "2020-03-24"
+  }
+  if (countyData[i,1] == "Illinois") {
+    countyData$StayHomeDate[i] = "2020-03-21"
+  }
+ if (countyData[i,1] == "Pennslyvania") {
+    countyData$StayHomeDate[i] = "2020-04-01"
+  }
+  if (countyData[i,1] == "Michigan") {
+    countyData$StayHomeDate[i] = "2020-03-24"
+  }
+  if (countyData[i,1] == "Florida") {
+    countyData$StayHomeDate[i] = "2020-04-03"
+  }
+  if (countyData[i,1] == "Texas") {
+    countyData$StayHomeDate[i] = "2020-04-02"
+  }
+  if (countyData[i,1] == "Louisiana") {
+    countyData$StayHomeDate[i] = "2020-03-23"
+  }
+}
 
 #Will need to merge the datasets 
 
