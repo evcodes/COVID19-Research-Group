@@ -175,8 +175,6 @@ for (i in 1:nrow(aggregateBeds)){
 names(aggregateBeds) = c("State","County","Beds")
 
 
-
-
 countyData = merge(deathsSub,casesSub)
 countyData = merge(countyData,incomeData,all = TRUE)
 countyData = merge(countyData,aggregateBeds,all=TRUE)
