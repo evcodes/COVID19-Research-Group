@@ -26,15 +26,27 @@ The counties were chosen from states that have the highest number of infections 
 
 
 ```{r}
-
 ```
 
 ```{r}
 countyData = countyData[complete.cases(countyData),]
 
-hist(log(countyData$totalDeaths+1), main="Distribution of log(Deaths)", 
+deathRatio = (countyData$totalDeaths / countyData$Pop.2019)
+1208.11311783286 
+deathRatio
+table(deathRatio)
+
+id = which(deathRatio < .001)
+deathRatio[id,]
+
+deathRatio<- deathRatio[which(deathRatio <= .001)]
+
+hist(deathRatio)
+deathRatio  %>% 
+hist(deathRatio)
+hist((log(countyData$totalDeaths+.1)\coun), main="Distribution of log(Deaths)", 
      xlab="log(Deaths)", col="forestgreen")
-summary(log(countyData$totalDeaths+0.1))
+summary(log(countyData$totalDeaths+.1))
 ```
 
 This histogram represents the distribution of log-transformed number of deaths in each county, where I have added 0.1 before taking the logarithm to i) avoid an undefined operation and ii) visually separate those with zero deaths from those with a nonzero number. The distribution appears unimodal and it is interesting to note the strong right skew even after the log-transform. There is one potential high outlier corresponding to New York. 
