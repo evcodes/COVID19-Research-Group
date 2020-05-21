@@ -18,6 +18,10 @@ mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility
 stayHomeClean = read.csv('data/StayHomeOrder.csv', header = TRUE)
 countyPop = read.csv('data/countyPop.csv', header = TRUE)
 
+
+popDensity = fread('https://raw.githubusercontent.com/camillol/cs424p3/master/data/Population-Density%20By%20County.csv')
+
+
 head(confirmedCasesUS)
 head(confirmedDeathsUS)
 head(stayHomeClean)
@@ -120,6 +124,12 @@ populationSub = populationSub[,c("STNAME","CTYNAME","POPESTIMATE2019")]
 names(populationSub) = c("State","County","Pop.2019")
 populationSub$County = sub(populationSub$County, pattern = " [[:alpha:]]*$", replacement = "")
 
+#Density per square mile of land area
+popDensity = popDensity[,c(3,6,7)]
+names(popDensity) = c("State","County","popDens")
+popDensity = subset(popDensity,(State %in% topStates))
+popDensity$County = sub(popDensity$County,pattern = " [[:alpha:]]*$", replacement = "")
+
 #Hospital 
 library(tools)
 hospitalSub = subset(hospitalClean,STATE %in% c("CA","NY","NJ","MA","LA","TX","MI","IL","FL","PA"))
@@ -171,6 +181,7 @@ countyData = merge(deathsSub,casesSub)
 countyData = merge(countyData,incomeData,all = TRUE)
 countyData = merge(countyData,aggregateBeds,all=TRUE)
 countyData = merge(countyData,populationSub)
+countyData = merge(countyData,popDensity,all=TRUE)
 countyData$StayHomeDate = as.character("2020-01-01")
 for (i in 1:nrow(countyData)){
   if (countyData[i,1] == "California") {
@@ -205,7 +216,7 @@ for (i in 1:nrow(countyData)){
   }
 }
 
-write.csv(countyData,"countyData2.csv")
+write.csv(countyData,"./data/countyData.csv")
 ```
 
 
