@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r}
 library(data.table)
-countyData = read.csv("/Users/chenyangsun/Downloads/COVID19-Research-Group-master/src/data/countyData.csv")
+countyData = read.csv("./data/countyData.csv")
 ```
 
 This dataset consists of county-wide measurements of the following quantities:
@@ -24,9 +24,16 @@ date when stay-at-home orders were initiated.
 
 The counties were chosen from states that have the highest number of infections as of 27 April 2020 (a milestone with 1,000,000 domestic cases). Note that the data was synthesized from multiple sources and then cleaned.
 
+
 ```{r}
-hist(log(countyData$totalDeaths+0.1), main="Distribution of log(Deaths)", 
-     xlab="log(Deaths)", border="blue", col="green")
+
+```
+
+```{r}
+countyData = countyData[complete.cases(countyData),]
+
+hist(log(countyData$totalDeaths+1), main="Distribution of log(Deaths)", 
+     xlab="log(Deaths)", col="forestgreen")
 summary(log(countyData$totalDeaths+0.1))
 ```
 
@@ -36,7 +43,7 @@ Interestingly, the same transform gives the number of cases a slightly right-ske
 
 ```{r}
 plot(log(countyData$totalDeaths+0.1)~log(countyData$totalCases+0.1), 
-     main="log(deaths) versus log(cases)",xlab="log(Total Cases)",ylab="log(Total Deaths)")
+     main="log(deaths) vs. log(cases)",xlab="log(Total Cases)",ylab="log(Total Deaths)")
 cor(log(countyData$totalDeaths+0.1),log(countyData$totalCases+0.1))
 ```
 

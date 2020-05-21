@@ -89,7 +89,8 @@ stayHomeClean$start.4 = ifelse(stayHomeClean$Start.Date >= as.Date('2020-04-01')
 
 ```{r income}
 # Adding data set for per capital income 2018 for each county
-incomeData = read.csv('data/lapi1119.csv',header = TRUE)
+incomeData = read.csv('data/lapi1119.csv',header = TRUE )
+typeof(incomeData)
 ```
 
 ```{r countyData}
@@ -100,9 +101,13 @@ incomeData = read.csv('data/lapi1119.csv',header = TRUE)
 topStates = c("New York","New Jersey","Massachusetts","Illinois","California","Pennsylvania", "Michigan", "Florida","Louisiana", "Texas")
 
 #Income
-
-incomeDataClean = subset(incomeData, State %in% topStates )
+incomeDataClean = subset(incomeData, ï..State %in% topStates )
 names(incomeDataClean) = c("State","County","Income.2018")
+
+
+
+incomeDataClean = transform(incomeDataClean, Income.2018 = as.integer(gsub(",","",Income.2018)))
+incomeDataClean
 
 #Cases - only as of 4/26/2020
 casesSub = subset(casesClean, (Province_State %in% topStates) & UID <84060000)
@@ -117,6 +122,8 @@ deathsSub$totalDeaths = deathsSub$"4/26/20"
 deathsSub = deathsSub[,c("County","Province_State","totalDeaths")]
 deathsSub = deathsSub[,c(2,1,3)]
 names(deathsSub) = c("State","County","totalDeaths")
+
+deathsSub
 
 #Population - 2019 estimates
 populationSub = subset(countyPop, STNAME %in% topStates & as.character(STNAME)!=as.character(CTYNAME))
@@ -176,7 +183,7 @@ names(aggregateBeds) = c("State","County","Beds")
 
 
 countyData = merge(deathsSub,casesSub)
-countyData = merge(countyData,incomeData,all = TRUE)
+countyData = merge(countyData,incomeDataClean,all = TRUE)
 countyData = merge(countyData,aggregateBeds,all=TRUE)
 countyData = merge(countyData,populationSub)
 countyData = merge(countyData,popDensity,all=TRUE)
@@ -217,6 +224,16 @@ for (i in 1:nrow(countyData)){
 write.csv(countyData,"./data/countyData.csv")
 ```
 
+
+```{r}
+library(xtable)
+
+table(countyData$StayHomeDate)
+table(countyData$State)
+hist(as.numeric(as.POSIXct(countyData$StayHomeDate)) ,col = 'blue', main = "Stay Homer Order Announced", xlab = "Unix Timestamp, left is earlier, right is later")
+hist(log(countyData$Income.2018), main = "Log Income per County", xlab = "Median Income")
+hist(log(countyData$Beds), main = "Log of Hospital Beds per")
+```
 
 
 
