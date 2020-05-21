@@ -144,7 +144,7 @@ for (i in 1:nrow(aggregateBeds)){
     aggregateBeds[i,1] = "Massachusetts"
   }
   if (as.character(aggregateBeds[i,1]) == "PA"){
-    aggregateBeds[i,1] = "Pennslyvania"
+    aggregateBeds[i,1] = "Pennsylvania"
   }
   if (as.character(aggregateBeds[i,1]) == "MI"){
     aggregateBeds[i,1] = "Michigan"
@@ -188,7 +188,7 @@ for (i in 1:nrow(countyData)){
   if (countyData[i,1] == "Illinois") {
     countyData$StayHomeDate[i] = "2020-03-21"
   }
- if (countyData[i,1] == "Pennslyvania") {
+ if (countyData[i,1] == "Pennsylvania") {
     countyData$StayHomeDate[i] = "2020-04-01"
   }
   if (countyData[i,1] == "Michigan") {
@@ -205,7 +205,7 @@ for (i in 1:nrow(countyData)){
   }
 }
 
-write.csv(countyData,"countyData.csv")
+write.csv(countyData,"countyData2.csv")
 ```
 
 
