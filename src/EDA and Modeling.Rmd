@@ -44,13 +44,16 @@ newdata$log.Income<-log(newdata$Income.2018)
 ```
 
 ```{r}
-par(mfrow = c(2,3))
+library(xtable)
+par(mfrow = c(2,4))
 hist(newdata$log.Income, main = "Log(Personal Income)", col = 'forestgreen')
 hist(newdata$log.Beds, main = "Log(Bed num)", col = "red", xlab = " Hospital capacity through number of beds")
 hist(newdata$log.deathRatio, main = "Log(death ratio)", xlab= "Deaths per capita",col = "yellow")
 hist(newdata$log.caseRatio, main = "Log(case ratio)", xlab = "Cases per capita", col = "blue")
 hist(newdata$log.pop, main = "Log(population)", xlab= "Population per county", col = "orange")
 hist(newdata$log.popDens, main = "Log(pop. density)", xlab = "pop/sq. feet", col = "brown")
+hist(as.numeric(as.Date(newdata$StayHomeDate)), main ="Stay Home Order Announced", xlab ="Date as number", col = "red")
+table(newdata$StayHomeDate)
 ```
 
 ```{r}
