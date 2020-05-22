@@ -10,12 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r}
 library(data.table)
-countyData = read.csv("/Users/chenyangsun/Downloads/COVID19-Research-Group-master 2/src/data/countyData.csv")
+countyData = read.csv("./data/countyData.csv")
 countyData$deathRatio<-(countyData$totalDeaths)/(countyData$Pop.2019)
 countyData$caseRatio<-(countyData$totalCases)/(countyData$Pop.2019)
 countyData<-countyData[which(!is.na(countyData$Beds)),]
 countyData<-countyData[which(!is.na(countyData$Income.2018)),]
 newdata<-countyData[,c("deathRatio", "caseRatio", "Income.2018","Beds","StayHomeDate","Pop.2019","popDens")]
+
 ```
 
 There are a small number of observations for which there are not Beds or Income measurements; those are discarded. For sake of continuity, we code date as an ordered categrical variable in the form of serial date. Examining the histograms of the variables, we see that every single one except for date displays strong right skew, which suggests a logarithmic transform for each of them. Note that the +0.00001 is added to include measurements of 0, since log(0) is undefined.
@@ -26,43 +27,48 @@ hist(newdata$deathRatio)
 hist(newdata$caseRatio)
 hist(newdata$Income.2018)
 hist(newdata$Beds)
-hist(newdata$date)
+hist(as.numeric(as.Date(newdata$StayHomeDate)))
 hist(newdata$Pop.2019)
 hist(newdata$popDens)
-boxplot(newdata$log.deathRatio~newdata$date,xlab="Date",ylab="log(deathRatio)")
-```
 
-```{r}
-newdata$Income<-as.numeric(newdata$Income)
+
+#Logging variables
+newdata$Income<-log((newdata$Income))
 newdata$date<-as.numeric(as.Date(newdata$StayHomeDate))
 newdata$log.Beds<-log(newdata$Beds)
-newdata$log.deathRatio<-log(newdata$deathRatio+.00001)
+newdata$log.deathRatio<-log(newdata$deathRatio+0.00001)
 newdata$log.caseRatio<-log(newdata$caseRatio+0.00001)
 newdata$log.pop<-log(newdata$Pop.2019+0.00001)
 newdata$log.popDens<-log(newdata$popDens)
 newdata$log.Income<-log(newdata$Income.2018)
 ```
 
+```{r}
+par(mfrow = c(2,3))
+hist(newdata$log.Income, main = "Log(Personal Income)", col = 'forestgreen')
+hist(newdata$log.Beds, main = "Log(Bed num)", col = "red", xlab = " Hospital capacity through number of beds")
+hist(newdata$log.deathRatio, main = "Log(death ratio)", xlab= "Deaths per capita",col = "yellow")
+hist(newdata$log.caseRatio, main = "Log(case ratio)", xlab = "Cases per capita", col = "blue")
+hist(newdata$log.pop, main = "Log(population)", xlab= "Population per county", col = "orange")
+hist(newdata$log.popDens, main = "Log(pop. density)", xlab = "pop/sq. feet", col = "brown")
+```
+
+```{r}
+boxplot(newdata$log.deathRatio~newdata$date,xlab="Date",ylab="log(deathRatio)")
+```
+
 Now we examine a paired scatterplot. We see quite a bit of multicollinearity between log(Beds) and population metrics, which makes sense since a large population mandates the construction of more beds. Also, some scatterplots seem to have a triangular formation; this may be attributed to the rarity of observations with extremely large values, which is made more evident by the logarithmic transform.
 
 ```{r}
 vars<-with(newdata, cbind(log.deathRatio,log.caseRatio,log.Income,log.Beds,date,log.pop,log.popDens))
-source("/Users/chenyangsun/Downloads/panelfxns.R") 
+source("./dependencies/panelfxns.R") 
 pairs(vars,lower.panel=panel.cor)
 ```
 
 We now fit the initial model with all predictors. Suspecting an interaction between population density and case ratio, we also add the interaction term.
-
 ```{r}
 lm.init<-lm(log.deathRatio~log.caseRatio+log.Income+log.Beds+date+log.pop+log.popDens+log.popDens*log.caseRatio, data=newdata)
 summary(lm.init)
-```
-
-```{r,echo=F}
-library(MASS)
-par(mfrow=c(2,2))
-plot(lm.init$residuals~lm.final$fitted.values, xlab = "Fitted Values", ylab="Residuals")
-qqnorm(lm.init$residuals)
 ```
 
 Looking at the diagnostics, we see that the residual plot looks patternless and uniform in variance except for the line corresponding to zero deaths. The normal quantile plot looks very straight with no deviations even at the tails, normality is satisfied.
