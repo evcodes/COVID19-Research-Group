@@ -5,16 +5,15 @@ date: "4/20/2020"
 output: pdf_document
 ---
 
-```{r}
+```{r import}
 
 # top top 10 states: NY, NJ, MA, IL, CA, PA, MI, FL, LA, TX
-# change formula for deaths/county pop
 
 library(data.table)
 confirmedCasesUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv')
 confirmedDeathsUS = fread('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv')
 hospitalData = read.csv('data/Hospitals.csv', header = TRUE)
-mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv')
+#mobilityReport = fread('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv')
 stayHomeClean = read.csv('data/StayHomeOrder.csv', header = TRUE)
 countyPop = read.csv('data/countyPop.csv', header = TRUE)
 
@@ -22,16 +21,16 @@ countyPop = read.csv('data/countyPop.csv', header = TRUE)
 popDensity = fread('https://raw.githubusercontent.com/camillol/cs424p3/master/data/Population-Density%20By%20County.csv')
 
 
-head(confirmedCasesUS)
-head(confirmedDeathsUS)
-head(stayHomeClean)
-head(countyPop)
-hospitalData
+#head(confirmedCasesUS)
+#head(confirmedDeathsUS)
+#head(stayHomeClean)
+#head(countyPop)
+#head(hospitalData)
 
 ```
 
 Preprocessing data to fix column names and remove columns that we are not going to use:
-```{r}
+```{r Process1}
 library(tidyverse)
 
 #Confirmed Cases
@@ -53,7 +52,7 @@ hospitalClean = hospitalData %>% filter(
 
 head(hospitalData)
 hospitalClean = hospitalData[,-c(1:6, 10:11, 16, 17, 20, 22:29,31,34)]
-hospitalClean
+#hospitalClean
 rapply(hospitalData,function(x)length(unique(x)))
 
 types = hospitalData$TYPE[!duplicated(hospitalData$TYPE)]
@@ -61,15 +60,17 @@ types = hospitalData$TYPE[!duplicated(hospitalData$TYPE)]
 #Filtering out the regions that are not the United States, each row is a day where the columns represent the %change  from baseline in different categories such as retail, transit, parks, etc...
 # When both sub_region_1 and sub_region_2 is empty then we are looking at the whole US
 # When sub_region_2 is empty we are looking at the statewide mobility report, I am keeping these in for future use cases.
-mobilityReportClean = mobilityReport[which(mobilityReport$country_region=='United States')]
+#mobilityReportClean = mobilityReport[which(mobilityReport$country_region=='United States')]
 
 
-head(casesClean)
-head(deathesClean)
-head(hospitalClean)
-mobilityReportClean
-head(stayHomeClean)
+#head(casesClean)
+#head(deathesClean)
+#head(hospitalClean)
+#mobilityReportClean
+#head(stayHomeClean)
 ```
+
+
 
 ```{r StayHome}
 # Need to translate StayHome date into a category "bucket" 
@@ -95,13 +96,13 @@ typeof(incomeData)
 
 ```{r countyData}
 #Create a unified "countyData" table which will link each county to: 
-# mortality rate, total cases, total deaths, # beds, ∆retail, ∆grocery, ∆parks, ∆transit, ∆work, ∆residential, stay at home, income
+# mortality rate, total cases, total deaths, # beds, stay at home, income, population density
 
 #Subsetting data for only counties in top 10 states
 topStates = c("New York","New Jersey","Massachusetts","Illinois","California","Pennsylvania", "Michigan", "Florida","Louisiana", "Texas")
 
 #Income
-incomeDataClean = subset(incomeData, ï..State %in% topStates )
+incomeDataClean = subset(incomeData, State %in% topStates )
 names(incomeDataClean) = c("State","County","Income.2018")
 
 
@@ -221,7 +222,7 @@ for (i in 1:nrow(countyData)){
   }
 }
 
-write.csv(countyData,"./data/countyData.csv")
+#write.csv(countyData,"./data/countyData.csv")
 ```
 
 

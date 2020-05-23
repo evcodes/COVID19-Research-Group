@@ -44,9 +44,9 @@ hist(newdata$popDens)
 ```{r}
 newdata$Income<-as.numeric(newdata$Income)
 newdata$log.Beds<-log(newdata$Beds)
-newdata$log.deathRatio<-log(newdata$deathRatio+.00001)
-newdata$log.caseRatio<-log(newdata$caseRatio+0.00001)
-newdata$log.pop<-log(newdata$Pop.2019+0.00001)
+newdata$log.deathRatio<-log(newdata$deathRatio)
+newdata$log.caseRatio<-log(newdata$caseRatio)
+newdata$log.pop<-log(newdata$Pop.2019)
 newdata$log.popDens<-log(newdata$popDens)
 newdata$log.Income<-log(newdata$Income.2018)
 newdata$bedsPerCap = newdata$Beds/newdata$Pop.2019
@@ -83,7 +83,12 @@ We imediately see that Income and Beds are each not significant given the other 
 lm.final<-lm(log.deathRatio~log.caseRatio+date+log.pop+Beds+log.popDens+log.popDens*log.caseRatio, data=newdata)
 summary(lm.final)
 anova(lm.final)
-vif(lm.final)
+
+
+
+confint(lm.final,level=0.95)
+
+
 ```
 
 We have arrived at a good candidate for a final model; all predictors and interactions also happen to be significant. We re-evaluate the diagnostics.
@@ -91,7 +96,7 @@ We have arrived at a good candidate for a final model; all predictors and intera
 ```{r,echo=F}
 library(MASS)
 par(mfrow=c(2,2))
-plot(lm.final$residuals~lm.final$fitted.values, xlab = "Fitted Values", ylab="Residuals")
+plot(lm.final$residuals~lm.final$fitted.values, xlab = "Fitted Values", ylab="Residuals",main="Residual Plot")
 qqnorm(lm.final$residuals)
 ```
 
